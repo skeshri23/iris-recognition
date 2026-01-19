@@ -1,4 +1,11 @@
 #iris recognition project for HACK OHI/O
+"""
+Iris Recognition Pipeline
+Developed during HACKOHI/O Hackathon
+
+This script demonstrates a basic real-time computer vision pipeline
+for detecting and processing eye regions from video input.
+"""
 
 import cv2
 import mediapipe as mp
