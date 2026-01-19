@@ -30,7 +30,8 @@ alternative for keyless car unlocking.
 1. Install dependencies:
    ```bash
    pip install -r requirements.txt
-
+2. Run the Script
+   '''bash
    python iris_recognition.py
 
 ---
