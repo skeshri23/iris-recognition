@@ -15,10 +15,10 @@ face_mesh = mp_face_mesh.FaceMesh(static_image_mode = False, max_num_faces = 1, 
 
 mp_drawing = mp.solutions.drawing_utils
 
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+video_capture = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 
 while(True):
-    success, frame = cap.read()
+    success, frame = video_capture.read()
     if not success:
         print("frame is not coming from the camera")
         break
@@ -46,5 +46,5 @@ while(True):
     cv2.imshow("results", frame)
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
-cap.release()
+video_capture.release()
 cv2.destroyAllWindows()
