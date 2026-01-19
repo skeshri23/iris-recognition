@@ -31,9 +31,9 @@ alternative for keyless car unlocking.
    ```bash
    pip install -r requirements.txt
 2. Run the Script
-   '''bash
+   ```bash
    python iris_recognition.py
-
+   
 ---
 
 ## Technologies Used
