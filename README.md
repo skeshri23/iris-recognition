@@ -26,6 +26,15 @@ alternative for keyless car unlocking.
 
 ---
 
+## How to Run
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+
+   python iris_recognition.py
+
+---
+
 ## Technologies Used
 - Python
 - OpenCV
