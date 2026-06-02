@@ -1,3 +1,5 @@
 pycache/
 *.pyc
 .DS_Store
+biokey-env/
+*.task
