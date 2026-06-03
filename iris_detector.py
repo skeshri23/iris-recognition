@@ -76,3 +76,18 @@ class IrisDetector:
             "right_center": right_center,
             "right_radius": right_radius,
         }
+    
+    def get_feature_vector(self, frame):
+        """
+        Returns a flat numpy array (vector) from extract_features,
+        ready to be saved and compared later.
+        """
+        features = self.extract_features(frame)
+        if features is None:
+            return None
+        return np.concatenate([
+            features["left_center"],
+            [features["left_radius"]],
+            features["right_center"],
+            [features["right_radius"]]
+        ])
