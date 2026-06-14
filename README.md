@@ -56,15 +56,61 @@ python3 verify.py
 ```
 
 ---
+## API
+
+BioKey exposes a REST API so any device or app can authenticate via iris.
+
+### Start the server
+```bash
+python3 api.py
+# Running on http://127.0.0.1:5000
+```
+
+### Endpoints
+
+**GET /health**
+```bash
+curl http://127.0.0.1:5000/health
+
+# Response
+{"status": "BioKey API is running"}
+```
+
+**POST /enroll**
+```bash
+curl -X POST http://127.0.0.1:5000/enroll \
+  -H "Content-Type: application/json" \
+  -d '{"name": "shristi", "image_path": "photo.jpg"}'
+
+# Response
+{"message": "shristi enrolled successfully"}
+```
+
+**POST /verify**
+```bash
+curl -X POST http://127.0.0.1:5000/verify \
+  -H "Content-Type: application/json" \
+  -d '{"image_path": "photo.jpg"}'
+
+# Access granted
+{"access": "granted", "identity": "shristi", "distance": 54.29}
+
+# Access denied  
+{"access": "denied", "distance": 210.82}
+```
+
+---
 
 ## Results
 
-| Scenario | Distance Score | Decision |
-|----------|---------------|----------|
-| Enrolled user (Shristi) | ~80 | ✅ Access Granted |
-| Different person | 150–350 | ❌ Access Denied |
+| Scenario | Distance | Decision |
+|----------|----------|----------|
+| Same image (baseline) | 0.0 | ✅ Granted |
+| Same person, different photo | ~54 | ✅ Granted |
+| Different person | 150–350 | ❌ Denied |
 
-Threshold tuned to 120 based on real scan data.
+Threshold: 120
+
 
 ---
 
