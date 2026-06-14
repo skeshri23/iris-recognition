@@ -63,7 +63,7 @@ def verify():
     if vector is None:
         return jsonify({"error": "no iris detected in image"}), 400
 
-    templates = load_templates()
+    templates = load_templates()  # reload fresh every time
     best_match = None
     best_distance = float("inf")
 
@@ -85,6 +85,5 @@ def verify():
             "access": "denied",
             "distance": round(best_distance, 2)
         })
-
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

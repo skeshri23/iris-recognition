@@ -3,3 +3,5 @@ pycache/
 .DS_Store
 biokey-env/
 *.task
+*.jpg
+templates.json
