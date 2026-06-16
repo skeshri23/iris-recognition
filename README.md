@@ -1,3 +1,11 @@
+---
+title: BioKey API
+emoji: 🔑
+colorFrom: green
+colorTo: blue
+sdk: docker
+pinned: false
+---
 # BioKey 🔑
 ### Iris-Based Biometric Authentication System
 
