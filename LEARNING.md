@@ -40,6 +40,28 @@
   - APIs should reload data fresh on every request, not cache it at startup
   - Camera needs warmup time — `time.sleep(2)` before capturing fixes black frames
 
+### Session 6 — Deployment
+
+- **What I built:** Deployed BioKey as a live API on Hugging Face Spaces
+- **Live URL:** https://livewithshri-biokey-api.hf.space
+
+- **What I learned:**
+  - Docker packages your entire app — code, dependencies, system libraries — into one portable container that runs the same everywhere
+  - `FROM python:3.12-slim` starts with a minimal Linux image with Python pre-installed
+  - `RUN apt-get install` installs system libraries (like OpenGL) that Python packages depend on
+  - `EXPOSE 7860` tells Docker which port the app listens on
+  - `ENV PORT=7860` sets an environment variable inside the container
+  - Hugging Face Spaces uses port 7860 by default — not 5000
+  - MediaPipe needs libGL, libEGL, and libGLES to run on headless Linux servers
+  - `python:3.12-slim` doesn't include curl — you have to install it explicitly
+  - Deployment is always harder than it looks — even senior engineers spend hours on this
+
+- **Challenges I solved:**
+  - Railway free tier ran out mid-deploy
+  - Render blocked system package installation
+  - Wrong OpenGL package names across different Debian versions
+  - Binary files rejected by Hugging Face git — purged from history with `git filter-branch`
+  - Token authentication with special characters breaking zsh URL parsing
 ---
 
 ## Interview Questions I Can Answer
@@ -85,3 +107,24 @@ BioKey's API has three endpoints: /health checks if the server is running,
 /enroll saves a new user's iris template, and /verify checks if a live scan 
 matches any enrolled user. Any device — a web app, mobile app, or Raspberry Pi 
 on a car door — can call these endpoints.
+
+**"Have you deployed anything?"**
+Yes — BioKey's Flask API is live at https://livewithshri-biokey-api.hf.space, 
+deployed on Hugging Face Spaces using Docker. I wrote a Dockerfile that installs 
+OpenGL system dependencies, downloads the MediaPipe model, and starts the Flask 
+server on port 7860.
+
+**"What is Docker?"**
+Docker packages an application and everything it needs — code, runtime, system 
+libraries, dependencies — into a container that runs consistently anywhere. 
+Instead of "it works on my machine," Docker makes it work on every machine. 
+I used it to deploy BioKey because MediaPipe requires specific OpenGL libraries 
+that aren't available by default on cloud servers.
+
+**"What challenges did you face in deployment?"**
+MediaPipe 0.10+ requires OpenGL libraries (libGL, libEGL, libGLES) that aren't 
+pre-installed on headless Linux servers. I tried Render and Railway first but hit 
+platform limitations. I eventually deployed on Hugging Face Spaces using Docker, 
+manually installing the exact OpenGL packages needed for Debian trixie. I also 
+had to purge a binary file from git history using git filter-branch when Hugging 
+Face rejected the push.
