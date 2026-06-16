@@ -1,3 +1,4 @@
-opencv-python
+flask
+opencv-contrib-python
 mediapipe
 numpy
