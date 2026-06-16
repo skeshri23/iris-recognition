@@ -1,3 +1,5 @@
+import os
+os.environ["MEDIAPIPE_DISABLE_GPU"] = "1"
 from flask import Flask, request, jsonify
 import numpy as np
 import json
