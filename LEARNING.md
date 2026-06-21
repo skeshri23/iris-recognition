@@ -128,3 +128,10 @@ platform limitations. I eventually deployed on Hugging Face Spaces using Docker,
 manually installing the exact OpenGL packages needed for Debian trixie. I also 
 had to purge a binary file from git history using git filter-branch when Hugging 
 Face rejected the push.
+
+**"What's your processing time / accuracy?"**
+Processing takes about 15ms per scan on a MacBook Air M1, CPU only — well 
+under real-time requirements. I haven't run formal FAR/FRR testing yet since 
+I only have 2 enrolled users; that's explicitly on my roadmap before I'd call 
+this production-ready. The threshold of 120 was tuned empirically — same-person 
+scans cluster at 50-100 distance, different-person scans are consistently 150+.

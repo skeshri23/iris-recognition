@@ -11,6 +11,8 @@ pinned: false
 # BioKey 🔑
 ### Iris-Based Biometric Authentication System
 
+**Live API:** https://livewithshri-biokey-api.hf.space
+
 > "What if you never needed a key again?"
 
 BioKey is a biometric authentication pipeline that uses your iris as your 
@@ -119,8 +121,13 @@ curl -X POST http://127.0.0.1:5000/verify \
 | Same person, different photo | ~54 | ✅ Granted |
 | Different person | 150–350 | ❌ Denied |
 
-Threshold: 120
+**Threshold:** 120
+**Processing time:** ~15ms per scan (M1 MacBook Air, CPU only)
+**Codebase:** 368 lines of Python across 6 files
 
+> Note: FAR/FRR not yet formally measured — current threshold is based on 
+> manual testing with 2 enrolled users. Formal accuracy testing with a larger 
+> dataset is on the roadmap.
 
 ---
 
