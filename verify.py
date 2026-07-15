@@ -8,7 +8,7 @@ def load_templates():
         return {name: np.array(vector) 
                 for name, vector in json.load(f).items()}
 
-def find_match(vector, templates, threshold=120):
+def find_match(vector, templates, threshold=130):
     best_match = None
     best_distance = float("inf")
     

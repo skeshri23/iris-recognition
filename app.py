@@ -75,7 +75,7 @@ def verify():
             best_distance = distance
             best_match = name
 
-    threshold = 120
+    threshold = 130
     if best_distance < threshold:
         return jsonify({
             "access": "granted",
