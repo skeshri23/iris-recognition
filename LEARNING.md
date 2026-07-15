@@ -62,6 +62,17 @@
   - Wrong OpenGL package names across different Debian versions
   - Binary files rejected by Hugging Face git — purged from history with `git filter-branch`
   - Token authentication with special characters breaking zsh URL parsing
+
+  ### Session 7 — Multi-scan enrollment
+
+- **What I built:** Updated enrollment to capture 5 scans and average them
+- **What I learned:**
+  - A single scan is noisy — lighting, angle, distance all shift the vector
+  - Averaging multiple scans smooths out noise and gives a more robust template
+  - `np.mean(vectors, axis=0)` averages each of the 6 numbers across all scans
+  - Threshold tuning is iterative — 120 was too tight after multi-scan, 130 works
+  - Distance 106 on a real verification = healthy margin below threshold
+
 ---
 
 ## Interview Questions I Can Answer
@@ -135,3 +146,9 @@ under real-time requirements. I haven't run formal FAR/FRR testing yet since
 I only have 2 enrolled users; that's explicitly on my roadmap before I'd call 
 this production-ready. The threshold of 120 was tuned empirically — same-person 
 scans cluster at 50-100 distance, different-person scans are consistently 150+.
+
+**"Why did you add multi-scan enrollment?"**
+A single iris scan is sensitive to lighting and head position — small changes 
+shift the feature vector. Averaging 5 scans smooths out that noise, giving a 
+more stable template. After switching to multi-scan, same-person distances 
+became more consistent and I could set a tighter threshold with more confidence.
