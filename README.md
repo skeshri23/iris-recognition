@@ -131,6 +131,24 @@ curl -X POST http://127.0.0.1:5000/verify \
 
 ---
 
+## Testing
+
+```bash
+python3 -m unittest test_biokey.py -v
+```
+
+10 unit tests covering:
+- Feature vector shape and type validation
+- Null detection on blank images
+- Deterministic output (same image = same vector)
+- Iris radius and center coordinate bounds
+- Matching logic for known users and strangers
+- Template persistence
+
+All 10 passing ✅
+
+---
+
 ## Real World Application
 
 Cars are the obvious target — a small IR camera mounted in the door handle 

@@ -73,6 +73,17 @@
   - Threshold tuning is iterative — 120 was too tight after multi-scan, 130 works
   - Distance 106 on a real verification = healthy margin below threshold
 
+### Session 8 — Unit Testing
+
+- **What I built:** 10 unit tests covering the full BioKey pipeline
+- **What I learned:**
+  - `unittest` is Python's built-in testing framework
+  - `setUpClass` runs once before all tests — use it for expensive setup like loading ML models
+  - `assertEqual`, `assertIsNone`, `assertGreater` — assertions are how you check expected vs actual
+  - `np.testing.assert_array_almost_equal` compares numpy arrays with floating point tolerance
+  - Tests catch regressions — if you change code and break something, tests tell you immediately
+  - A blank black image is a good edge case test — real systems must handle bad input gracefully
+
 ---
 
 ## Interview Questions I Can Answer
@@ -152,3 +163,9 @@ A single iris scan is sensitive to lighting and head position — small changes
 shift the feature vector. Averaging 5 scans smooths out that noise, giving a 
 more stable template. After switching to multi-scan, same-person distances 
 became more consistent and I could set a tighter threshold with more confidence.
+
+**"Do you write tests?"**
+Yes — BioKey has 10 unit tests covering feature extraction, null handling, 
+matching logic, and data validation. I used Python's unittest framework with 
+setUpClass to load the MediaPipe model once and reuse it across tests. 
+All 10 pass in under 5 seconds.
