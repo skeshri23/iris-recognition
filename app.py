@@ -87,6 +87,29 @@ def verify():
             "access": "denied",
             "distance": round(best_distance, 2)
         })
+    
+@app.route("/")
+def home():
+    return """
+    <html>
+    <body style="font-family: monospace; max-width: 600px; margin: 40px auto; padding: 20px;">
+        <h1>🔑 BioKey API</h1>
+        <p>Iris-based biometric authentication system.</p>
+        <h3>Endpoints</h3>
+        <ul>
+            <li><b>GET /health</b> — check API status</li>
+            <li><b>POST /enroll</b> — register a user's iris template</li>
+            <li><b>POST /verify</b> — verify identity from an image</li>
+        </ul>
+        <h3>Live Test</h3>
+        <a href="/health">/health</a>
+        <h3>Source</h3>
+        <a href="https://github.com/skeshri23/iris-recognition">GitHub</a>
+    </body>
+    </html>
+    """
+
+    
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 7860))
