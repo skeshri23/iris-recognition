@@ -13,6 +13,8 @@ pinned: false
 
 **Live API:** https://livewithshri-biokey-api.hf.space
 
+> Free tier — allow 30-60 seconds to wake up if inactive.
+
 > "What if you never needed a key again?"
 
 BioKey is a biometric authentication pipeline that uses your iris as your 

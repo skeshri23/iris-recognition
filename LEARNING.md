@@ -84,6 +84,14 @@
   - Tests catch regressions — if you change code and break something, tests tell you immediately
   - A blank black image is a good edge case test — real systems must handle bad input gracefully
 
+### Session 9 — Landing page + deployment notes
+
+- **What I built:** HTML landing page at API root, learned about cold starts
+- **What I learned:**
+  - A `/` route returning HTML turns an API into something humans can visit
+  - Free tier hosting sleeps after inactivity — cold start = 30-60s wake time
+  - The API accepts image_path (server-side file) not webcam directly — browser webcam → base64 → API is the next step for real user access
+  - Render vs Railway vs Hugging Face — each platform has different constraints. HF Spaces + Docker was the winning combo for MediaPipe
 ---
 
 ## Interview Questions I Can Answer
