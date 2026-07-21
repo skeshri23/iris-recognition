@@ -5,22 +5,30 @@ import numpy as np
 import json
 import cv2
 from iris_detector import IrisDetector
+import base64
+from flask import Flask, request, jsonify, render_template
+
 
 app = Flask(__name__)
 detector = IrisDetector()
-
+    
 def load_templates():
     try:
         with open("templates.json", "r") as f:
+            content = f.read().strip()
+            if not content:
+                return {}
             return {name: np.array(vector)
-                    for name, vector in json.load(f).items()}
-    except FileNotFoundError:
-        return {}
+                    for name, vector in json.loads(content).items()}
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}    
 
 def save_templates(templates):
     with open("templates.json", "w") as f:
-        json.dump({name: vector.tolist()
-                   for name, vector in templates.items()}, f, indent=2)
+        json.dump({
+            name: vector.tolist() if hasattr(vector, 'tolist') else vector
+            for name, vector in templates.items()
+        }, f, indent=2)
 
 @app.route("/health", methods=["GET"])
 def health():
@@ -90,26 +98,85 @@ def verify():
     
 @app.route("/")
 def home():
-    return """
-    <html>
-    <body style="font-family: monospace; max-width: 600px; margin: 40px auto; padding: 20px;">
-        <h1>🔑 BioKey API</h1>
-        <p>Iris-based biometric authentication system.</p>
-        <h3>Endpoints</h3>
-        <ul>
-            <li><b>GET /health</b> — check API status</li>
-            <li><b>POST /enroll</b> — register a user's iris template</li>
-            <li><b>POST /verify</b> — verify identity from an image</li>
-        </ul>
-        <h3>Live Test</h3>
-        <a href="/health">/health</a>
-        <h3>Source</h3>
-        <a href="https://github.com/skeshri23/iris-recognition">GitHub</a>
-    </body>
-    </html>
-    """
+    return render_template("index.html")
 
-    
+
+
+@app.route("/enroll_base64", methods=["POST"])
+def enroll_base64():
+    data = request.get_json()
+    name = data.get("name")
+    image_b64 = data.get("image")
+
+    if not name or not image_b64:
+        return jsonify({"error": "name and image required"}), 400
+
+    # Decode base64 image
+    header, encoded = image_b64.split(",", 1)
+    image_bytes = base64.b64decode(encoded)
+    np_arr = np.frombuffer(image_bytes, np.uint8)
+    frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+    if frame is None:
+        return jsonify({"error": "could not decode image"}), 400
+
+    vector = detector.get_feature_vector(frame)
+    if vector is None:
+        return jsonify({"error": "no iris detected"}), 400
+
+    templates = load_templates()
+    templates[name] = vector.tolist()
+    save_templates(templates)
+
+    return jsonify({"message": f"{name} enrolled successfully"})
+
+
+@app.route("/verify_base64", methods=["POST"])
+def verify_base64():
+    data = request.get_json()
+    image_b64 = data.get("image")
+
+    if not image_b64:
+        return jsonify({"error": "image required"}), 400
+
+    header, encoded = image_b64.split(",", 1)
+    image_bytes = base64.b64decode(encoded)
+    np_arr = np.frombuffer(image_bytes, np.uint8)
+    frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+    if frame is None:
+        return jsonify({"error": "could not decode image"}), 400
+
+    vector = detector.get_feature_vector(frame)
+    if vector is None:
+        return jsonify({"error": "no iris detected"}), 400
+
+    templates = load_templates()
+    if not templates:
+        return jsonify({"error": "no enrolled users"}), 400
+
+    best_match = None
+    best_distance = float("inf")
+    for name, template in templates.items():
+        distance = np.linalg.norm(vector - template)
+        if distance < best_distance:
+            best_distance = distance
+            best_match = name
+
+    threshold = 130
+    if best_distance < threshold:
+        return jsonify({
+            "access": "granted",
+            "identity": best_match,
+            "distance": round(best_distance, 2)
+        })
+    else:
+        return jsonify({
+            "access": "denied",
+            "distance": round(best_distance, 2)
+        })
+
+
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 7860))
