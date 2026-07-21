@@ -92,6 +92,17 @@
   - Free tier hosting sleeps after inactivity — cold start = 30-60s wake time
   - The API accepts image_path (server-side file) not webcam directly — browser webcam → base64 → API is the next step for real user access
   - Render vs Railway vs Hugging Face — each platform has different constraints. HF Spaces + Docker was the winning combo for MediaPipe
+
+### Session 10 — Web Frontend
+
+- **What I built:** Browser-based UI with live webcam for enroll and verify
+- **What I learned:**
+  - `navigator.mediaDevices.getUserMedia()` accesses the webcam from browser JS
+  - `canvas.toDataURL('image/jpeg')` captures a frame as base64 string
+  - `fetch()` sends that base64 to the Flask API as JSON
+  - Base64 is a way to encode binary data (images) as text so it can travel in JSON
+  - `cv2.imdecode(np.frombuffer(...))` converts base64 bytes back to an OpenCV frame
+  - Flask's `render_template()` serves HTML files from the `templates/` folder  
 ---
 
 ## Interview Questions I Can Answer

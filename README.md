@@ -11,9 +11,10 @@ pinned: false
 # BioKey 🔑
 ### Iris-Based Biometric Authentication System
 
-**Live API:** https://livewithshri-biokey-api.hf.space
+**Live Demo:** https://livewithshri-biokey-api.hf.space
 
-> Free tier — allow 30-60 seconds to wake up if inactive.
+Enroll your iris and verify your identity directly in the browser — 
+no installation required.
 
 > "What if you never needed a key again?"
 
