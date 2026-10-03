@@ -26,7 +26,7 @@ No key to forget. No key to steal. Just you.
 
 ## Demo
 
-<!-- Add demo GIF here -->
+![BioKey Demo](demo/biokey_demo.gif)
 
 ---
 
