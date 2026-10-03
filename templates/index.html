@@ -3,42 +3,268 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BioKey — Iris Authentication</title>
+  <title>BioKey — Biometric Authentication</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #080C0F;
+      --surface: #0D1117;
+      --surface-2: #161B22;
+      --border: #21262D;
+      --border-2: #30363D;
+      --accent: #D4A017;
+      --accent-dim: rgba(212, 160, 23, 0.08);
+      --accent-border: rgba(212, 160, 23, 0.2);
+      --green: #39D353;
+      --green-dim: rgba(57, 211, 83, 0.08);
+      --red: #F85149;
+      --red-dim: rgba(248, 81, 73, 0.08);
+      --text: #E6EDF3;
+      --text-2: #7D8590;
+      --text-3: #484F58;
+      --mono: 'JetBrains Mono', monospace;
+      --sans: 'Inter', sans-serif;
+    }
+
     body {
-      background: #0a0a0a;
-      color: #ffffff;
-      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 40px 20px;
+      overflow-x: hidden;
     }
 
-    h1 {
-      font-size: 2rem;
-      letter-spacing: 0.1em;
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(212,160,23,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(212,160,23,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8, 12, 15, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    .nav-name {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .nav-link {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--text-3);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.15s;
+    }
+
+    .nav-link:hover { color: var(--text-2); }
+    .nav-link.active { color: var(--accent); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      letter-spacing: 0.06em;
+    }
+
+    .status-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    .status-dot.online {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: blink 2.5s infinite;
+    }
+
+    .status-dot.warning { background: var(--accent); }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .nav-time {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      letter-spacing: 0.06em;
+    }
+
+    /* Main layout */
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 420px 1fr;
+      gap: 0;
+      padding: 40px 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .main-center {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Section label */
+    .section-label {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
       margin-bottom: 4px;
     }
 
-    .subtitle {
-      color: #666;
-      font-size: 0.85rem;
-      margin-bottom: 32px;
-      letter-spacing: 0.05em;
+    /* Stats */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--surface);
     }
 
-    .camera-container {
-      position: relative;
-      width: 480px;
-      height: 360px;
-      border: 1px solid #222;
+    .stat {
+      padding: 10px 14px;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat:last-child { border-right: none; }
+
+    .stat-val {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+
+    .stat-key {
+      font-size: 0.62rem;
+      color: var(--text-3);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* Panel */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 8px;
       overflow: hidden;
-      background: #111;
+    }
+
+    .panel-header {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--green);
+      letter-spacing: 0.08em;
+    }
+
+    .live-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 5px var(--green);
+      animation: blink 2s infinite;
+    }
+
+    /* Camera */
+    .camera-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #000;
+      overflow: hidden;
     }
 
     #video {
@@ -46,286 +272,586 @@
       height: 100%;
       object-fit: cover;
       transform: scaleX(-1);
+      display: block;
+      opacity: 0.9;
     }
 
     #canvas { display: none; }
 
-    .overlay {
+    /* Scanline effect */
+    .camera-wrap::after {
+      content: '';
       position: absolute;
-      top: 16px;
-      left: 16px;
-      font-size: 0.75rem;
-      color: #00ff88;
-      letter-spacing: 0.05em;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
     }
 
-    .status-dot {
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #00ff88;
-      margin-right: 6px;
-      animation: pulse 2s infinite;
+    /* Corner brackets */
+    .corner {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: var(--accent);
+      border-style: solid;
+      opacity: 0.7;
+      z-index: 2;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
+    .corner-tl { top: 10px; left: 10px; border-width: 1px 0 0 1px; }
+    .corner-tr { top: 10px; right: 10px; border-width: 1px 1px 0 0; }
+    .corner-bl { bottom: 10px; left: 10px; border-width: 0 0 1px 1px; }
+    .corner-br { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
+
+    /* Scan line animation */
+    .scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      z-index: 2;
+      transition: opacity 0.3s;
     }
 
+    .scan-line.scanning {
+      opacity: 0.6;
+      animation: scan 1.5s ease-in-out;
+    }
+
+    @keyframes scan {
+      0% { top: 0%; }
+      100% { top: 100%; }
+    }
+
+    /* Controls */
     .controls {
+      padding: 16px;
       display: flex;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .btn {
-      padding: 12px 28px;
-      border: none;
-      border-radius: 6px;
-      font-family: inherit;
-      font-size: 0.9rem;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .btn-enroll {
-      background: #1a1a1a;
-      color: #ffffff;
-      border: 1px solid #333;
-    }
-
-    .btn-enroll:hover { border-color: #666; }
-
-    .btn-verify {
-      background: #00ff88;
-      color: #000000;
-      font-weight: 600;
-    }
-
-    .btn-verify:hover { background: #00cc6a; }
-
-    .btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    .result {
-      margin-top: 24px;
-      padding: 16px 24px;
-      border-radius: 6px;
-      font-size: 0.9rem;
-      letter-spacing: 0.05em;
-      min-width: 480px;
-      text-align: center;
-      display: none;
-    }
-
-    .result.granted {
-      background: #0a2a1a;
-      border: 1px solid #00ff88;
-      color: #00ff88;
-    }
-
-    .result.denied {
-      background: #2a0a0a;
-      border: 1px solid #ff4444;
-      color: #ff4444;
-    }
-
-    .result.error {
-      background: #1a1a0a;
-      border: 1px solid #ffaa00;
-      color: #ffaa00;
+      flex-direction: column;
+      gap: 8px;
     }
 
     .enroll-form {
       display: none;
-      margin-top: 16px;
       gap: 8px;
-      align-items: center;
+      margin-bottom: 2px;
     }
 
     .enroll-form.visible { display: flex; }
 
     .enroll-input {
-      padding: 10px 16px;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 6px;
-      color: #fff;
-      font-family: inherit;
-      font-size: 0.9rem;
+      flex: 1;
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border-2);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.75rem;
       outline: none;
+      letter-spacing: 0.04em;
+      transition: border-color 0.15s;
     }
 
-    .enroll-input:focus { border-color: #666; }
+    .enroll-input:focus { border-color: var(--accent); }
+    .enroll-input::placeholder { color: var(--text-3); }
 
-    .btn-confirm {
-      padding: 10px 20px;
-      background: #ffffff;
-      color: #000000;
-      border: none;
-      border-radius: 6px;
-      font-family: inherit;
-      font-size: 0.9rem;
+    .btn-capture {
+      padding: 10px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-2);
+      color: var(--text-2);
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       cursor: pointer;
-      font-weight: 600;
+      white-space: nowrap;
+      transition: all 0.15s;
     }
 
-    .distance {
+    .btn-capture:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn {
+      width: 100%;
+      padding: 11px 20px;
+      border-radius: 4px;
+      font-family: var(--mono);
       font-size: 0.75rem;
-      opacity: 0.6;
-      margin-top: 4px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
     }
 
-    footer {
-      margin-top: 48px;
-      color: #333;
+    .btn-verify {
+      background: var(--accent);
+      color: #080C0F;
+    }
+
+    .btn-verify:hover {
+      background: #E8B420;
+      box-shadow: 0 0 24px rgba(212,160,23,0.2);
+    }
+
+    .btn-enroll {
+      background: transparent;
+      color: var(--text-2);
+      border: 1px solid var(--border-2);
+    }
+
+    .btn-enroll:hover { border-color: var(--text-3); color: var(--text); }
+
+    /* Result */
+    .result {
+      display: none;
+      margin: 0 16px 16px;
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-family: var(--mono);
       font-size: 0.75rem;
-      text-align: center;
-      line-height: 1.8;
+      letter-spacing: 0.04em;
     }
 
-    footer a { color: #555; text-decoration: none; }
-    footer a:hover { color: #888; }
+    .result.granted {
+      background: var(--green-dim);
+      border: 1px solid rgba(57,211,83,0.2);
+      color: var(--green);
+    }
+
+    .result.denied {
+      background: var(--red-dim);
+      border: 1px solid rgba(248,81,73,0.2);
+      color: var(--red);
+    }
+
+    .result.error {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      color: var(--accent);
+    }
+
+    .result-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-dist { font-size: 0.65rem; opacity: 0.6; }
+
+    /* System log */
+    .log-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .log-body {
+      padding: 12px 14px;
+      height: 140px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-body::-webkit-scrollbar { width: 3px; }
+    .log-body::-webkit-scrollbar-track { background: transparent; }
+    .log-body::-webkit-scrollbar-thumb { background: var(--border-2); }
+
+    .log-entry {
+      display: flex;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      line-height: 1.5;
+      color: var(--text-3);
+    }
+
+    .log-time { color: var(--text-3); white-space: nowrap; flex-shrink: 0; }
+    .log-msg { color: var(--text-2); }
+    .log-msg.success { color: var(--green); }
+    .log-msg.error { color: var(--red); }
+    .log-msg.warn { color: var(--accent); }
+
+    /* Info sidebar */
+    .sidebar {
+      padding: 40px 24px 0 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .info-block {
+      border-left: 1px solid var(--border);
+      padding-left: 16px;
+    }
+
+    .info-title {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .info-text {
+      font-size: 0.78rem;
+      color: var(--text-2);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .info-text strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+    }
+
+    .spec-row:last-child { border-bottom: none; }
+    .spec-key { color: var(--text-3); }
+    .spec-val { color: var(--accent); }
+
+    /* Footer */
+    .footer {
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .footer-link {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      transition: color 0.15s;
+    }
+
+    .footer-link:hover { color: var(--text-2); }
+
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+    }
   </style>
 </head>
 <body>
 
-  <h1>🔑 BioKey</h1>
-  <p class="subtitle">iris-based biometric authentication</p>
-
-  <div class="camera-container">
-    <video id="video" autoplay playsinline></video>
-    <canvas id="canvas"></canvas>
-    <div class="overlay">
-      <span class="status-dot"></span>LIVE
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <div class="nav-brand">
+        <div class="nav-dot"></div>
+        <span class="nav-name">BioKey</span>
+      </div>
+      <div class="nav-links">
+        <a href="#" class="nav-link active">Terminal</a>
+        <a href="/health" class="nav-link">API Status</a>
+        <a href="https://github.com/skeshri23/iris-recognition" class="nav-link">Source</a>
+      </div>
     </div>
+    <div class="nav-right">
+      <div class="nav-status">
+        <div class="status-dot online"></div>
+        SYSTEM ONLINE
+      </div>
+      <div class="nav-status">
+        <div class="status-dot warning"></div>
+        MEDIAPIPE v0.10.35
+      </div>
+      <div class="nav-time" id="navTime"></div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- Left spacer / sidebar -->
+    <div class="sidebar">
+      <div>
+        <div class="section-label">About</div>
+        <div class="info-block">
+          <p class="info-text">
+            BioKey uses <strong>MediaPipe FaceLandmarker</strong> to detect
+            478 facial landmarks in real time, isolating 8 iris points per eye
+            to compute a <strong>feature vector</strong> for identity matching.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Specifications</div>
+        <div class="info-block">
+          <div class="spec-row">
+            <span class="spec-key">Processing</span>
+            <span class="spec-val">~15ms</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Landmarks</span>
+            <span class="spec-val">478 pts</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Enrollment</span>
+            <span class="spec-val">5-scan avg</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Threshold</span>
+            <span class="spec-val">130</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Model</span>
+            <span class="spec-val">FaceLandmarker</span>
+          </div>
+          <div class="spec-row">
+            <span class="spec-key">Matching</span>
+            <span class="spec-val">Euclidean</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center -->
+    <div class="main-center">
+
+      <div>
+        <div class="section-label">Authentication Terminal</div>
+        <div class="stats-bar">
+          <div class="stat">
+            <div class="stat-val">~15ms</div>
+            <div class="stat-key">Scan Speed</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">478pts</div>
+            <div class="stat-key">Landmarks</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">5-scan</div>
+            <div class="stat-key">Enrollment</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Camera Feed</span>
+          <div class="live-badge">
+            <div class="live-dot"></div>
+            ACTIVE
+          </div>
+        </div>
+        <div class="camera-wrap">
+          <video id="video" autoplay playsinline></video>
+          <canvas id="canvas"></canvas>
+          <div class="scan-line" id="scanLine"></div>
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+        </div>
+        <div class="controls">
+          <div class="enroll-form" id="enrollForm">
+            <input class="enroll-input" id="nameInput"
+                   placeholder="IDENTIFIER" type="text">
+            <button class="btn-capture" onclick="enroll()">Capture</button>
+          </div>
+          <button class="btn btn-verify" onclick="verify()">Verify Identity</button>
+          <button class="btn btn-enroll" onclick="toggleEnroll()">Enroll New User</button>
+        </div>
+        <div class="result" id="result">
+          <div class="result-inner">
+            <span id="resultText"></span>
+            <span class="result-dist" id="resultDist"></span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">System Log</div>
+        <div class="log-panel">
+          <div class="panel-header">
+            <span class="panel-title">Event Stream</span>
+            <span class="panel-title" id="logCount">0 events</span>
+          </div>
+          <div class="log-body" id="logBody"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right spacer -->
+    <div></div>
+
   </div>
 
-  <div class="controls">
-    <button class="btn btn-enroll" id="enrollBtn" onclick="showEnrollForm()">
-      Enroll
-    </button>
-    <button class="btn btn-verify" id="verifyBtn" onclick="verify()">
-      Verify →
-    </button>
-  </div>
-
-  <div class="enroll-form" id="enrollForm">
-    <input class="enroll-input" id="nameInput" 
-           placeholder="enter your name" type="text">
-    <button class="btn-confirm" onclick="enroll()">Capture</button>
-  </div>
-
-  <div class="result" id="result">
-    <div id="resultText"></div>
-    <div class="distance" id="resultDistance"></div>
-  </div>
-
-  <footer>
-    built by <a href="https://github.com/skeshri23">shristi keshri</a>
-    &nbsp;·&nbsp;
-    <a href="https://github.com/skeshri23/iris-recognition">github</a>
-    &nbsp;·&nbsp;
-    <a href="/health">api status</a>
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-left">
+      <a href="https://github.com/skeshri23/iris-recognition" class="footer-link">GitHub</a>
+      <a href="https://linkedin.com/in/shristikeshri2110" class="footer-link">Shristi Keshri</a>
+      <a href="/health" class="footer-link">API Health</a>
+    </div>
+    <div class="footer-right">BioKey v1.0.0 — Iris Authentication System</div>
   </footer>
 
   <script>
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    let logCount = 0;
 
-    // Start webcam
+    // Clock
+    function updateTime() {
+      const now = new Date();
+      document.getElementById('navTime').textContent =
+        now.toUTCString().slice(17, 25) + ' UTC';
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // Camera
     async function startCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: 'user' } 
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: 640, height: 480 }
         });
         video.srcObject = stream;
-      } catch (err) {
-        showResult('error', 'Camera access denied — please allow camera permission');
+        addLog('Camera initialized', 'success');
+        addLog('MediaPipe FaceLandmarker ready', 'success');
+      } catch {
+        showResult('error', 'CAMERA ACCESS DENIED');
+        addLog('Camera access denied', 'error');
       }
     }
 
-    // Capture current frame as base64
     function captureFrame() {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       ctx.drawImage(video, 0, 0);
-      return canvas.toDataURL('image/jpeg', 0.8);
+      return canvas.toDataURL('image/jpeg', 0.85);
     }
 
-    function showEnrollForm() {
-      const form = document.getElementById('enrollForm');
-      form.classList.toggle('visible');
+    function toggleEnroll() {
+      document.getElementById('enrollForm').classList.toggle('visible');
+      addLog('Enrollment mode toggled');
     }
 
-    function showResult(type, message, distance) {
-      const result = document.getElementById('result');
-      const resultText = document.getElementById('resultText');
-      const resultDistance = document.getElementById('resultDistance');
+    function showResult(type, msg, dist) {
+      const el = document.getElementById('result');
+      el.className = `result ${type}`;
+      el.style.display = 'block';
+      document.getElementById('resultText').textContent = msg;
+      document.getElementById('resultDist').textContent =
+        dist ? `dist: ${dist}` : '';
+    }
 
-      result.className = `result ${type}`;
-      result.style.display = 'block';
-      resultText.textContent = message;
-      resultDistance.textContent = distance ? 
-        `distance: ${distance}` : '';
+    function addLog(msg, type) {
+      const body = document.getElementById('logBody');
+      const now = new Date();
+      const time = now.toTimeString().slice(0, 8);
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `
+        <span class="log-time">${time}</span>
+        <span class="log-msg ${type || ''}">${msg}</span>
+      `;
+      body.appendChild(entry);
+      body.scrollTop = body.scrollHeight;
+      logCount++;
+      document.getElementById('logCount').textContent = `${logCount} events`;
+    }
+
+    function triggerScan() {
+      const line = document.getElementById('scanLine');
+      line.classList.remove('scanning');
+      void line.offsetWidth;
+      line.classList.add('scanning');
+      setTimeout(() => line.classList.remove('scanning'), 1500);
     }
 
     async function enroll() {
-      const name = document.getElementById('nameInput').value.trim();
-      if (!name) {
-        showResult('error', 'Please enter your name');
-        return;
-      }
-
-      const frame = captureFrame();
-
+      const name = document.getElementById('nameInput').value.trim().toUpperCase();
+      if (!name) { showResult('error', 'IDENTIFIER REQUIRED'); return; }
+      addLog(`Enrollment initiated: ${name}`, 'warn');
+      triggerScan();
       try {
-        const response = await fetch('/enroll_base64', {
+        const res = await fetch('/enroll_base64', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, image: frame })
+          body: JSON.stringify({ name, image: captureFrame() })
         });
-        const data = await response.json();
-
+        const data = await res.json();
         if (data.message) {
-          showResult('granted', `✓ ${data.message}`);
+          showResult('granted', `ENROLLED: ${name}`);
+          addLog(`Template saved: ${name}`, 'success');
           document.getElementById('enrollForm').classList.remove('visible');
+          document.getElementById('nameInput').value = '';
         } else {
-          showResult('error', `✗ ${data.error}`);
+          showResult('error', data.error?.toUpperCase() || 'ENROLLMENT FAILED');
+          addLog(`Enrollment failed: ${data.error}`, 'error');
         }
-      } catch (err) {
-        showResult('error', 'Connection error');
+      } catch {
+        showResult('error', 'CONNECTION ERROR');
+        addLog('Connection error', 'error');
       }
     }
 
     async function verify() {
-      const frame = captureFrame();
-
+      addLog('Verification scan initiated', 'warn');
+      triggerScan();
       try {
-        const response = await fetch('/verify_base64', {
+        const res = await fetch('/verify_base64', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: frame })
+          body: JSON.stringify({ image: captureFrame() })
         });
-        const data = await response.json();
-
+        const data = await res.json();
         if (data.access === 'granted') {
-          showResult('granted', 
-            `✓ Welcome, ${data.identity}`, 
-            data.distance);
+          showResult('granted',
+            `ACCESS GRANTED — ${data.identity.toUpperCase()}`, data.distance);
+          addLog(`Identity confirmed: ${data.identity} (dist: ${data.distance})`, 'success');
         } else if (data.access === 'denied') {
-          showResult('denied', '✗ Access Denied', data.distance);
+          showResult('denied', 'ACCESS DENIED', data.distance);
+          addLog(`Access denied (dist: ${data.distance})`, 'error');
         } else {
-          showResult('error', `✗ ${data.error}`);
+          showResult('error', data.error?.toUpperCase() || 'ERROR');
+          addLog(`Error: ${data.error}`, 'error');
         }
-      } catch (err) {
-        showResult('error', 'Connection error');
+      } catch {
+        showResult('error', 'CONNECTION ERROR');
+        addLog('Connection error', 'error');
       }
     }
 
