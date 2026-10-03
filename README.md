@@ -8,111 +8,40 @@ sdk_version: "1.0"
 app_file: app.py
 pinned: false
 ---
-# BioKey 🔑
-### Iris-Based Biometric Authentication System
 
-**Live Demo:** https://livewithshri-biokey-api.hf.space
+# BioKey
+**Iris-Based Biometric Authentication System**
 
-Enroll your iris and verify your identity directly in the browser — 
-no installation required.
+> Started as a hackathon script. Became a deployed authentication system.
 
-> "What if you never needed a key again?"
-
-BioKey is a biometric authentication pipeline that uses your iris as your 
-identity. Point a camera at your eye — BioKey enrolls you, remembers you, 
-and verifies you in real time. The end goal: a hardware-attached system that 
-replaces your car key entirely.
+BioKey uses your iris as your identity. Look at a camera, press verify — 
+BioKey tells you who you are and whether to grant access. The end vision: 
+a small IR camera on your car door handle that replaces your key entirely.
 
 No key to forget. No key to steal. Just you.
+
+**[Try it live →](https://livewithshri-biokey-api.hf.space)**
 
 ---
 
 ## Demo
 
-![BioKey recognizing Shristi](demo/verified.png)
-
-*Green circles track both irises in real time. Press SPACE to authenticate.*
+<!-- Add demo GIF here -->
 
 ---
 
 ## How It Works
 
-BioKey runs a full biometric pipeline in three stages:
+BioKey runs a three-stage biometric pipeline:
 
-**1. Detect** — MediaPipe FaceLandmarker finds 478 facial landmarks in real 
-time and isolates the 8 iris points across both eyes.
+**1. Detect** — MediaPipe FaceLandmarker locates 478 facial landmarks in 
+real time, isolating 8 iris points across both eyes.
 
-**2. Extract** — The iris center coordinates and radius are computed into a 
-6-number feature vector that uniquely represents that iris scan.
+**2. Extract** — Iris center coordinates and radius are computed into a 
+6-number feature vector representing that specific iris scan.
 
-**3. Match** — The live feature vector is compared against enrolled templates 
-using Euclidean distance. Under threshold = access granted. Over = denied.
-
----
-
-## Quickstart
-
-```bash
-# Clone and set up
-git clone https://github.com/skeshri23/iris-recognition
-cd iris-recognition
-python3 -m venv biokey-env
-source biokey-env/bin/activate
-pip install opencv-contrib-python mediapipe numpy
-
-# Download the MediaPipe model
-curl -o face_landmarker.task -L https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
-
-# Enroll yourself
-python3 enroll.py
-
-# Verify
-python3 verify.py
-```
-
----
-## API
-
-BioKey exposes a REST API so any device or app can authenticate via iris.
-
-### Start the server
-```bash
-python3 api.py
-# Running on http://127.0.0.1:5000
-```
-
-### Endpoints
-
-**GET /health**
-```bash
-curl http://127.0.0.1:5000/health
-
-# Response
-{"status": "BioKey API is running"}
-```
-
-**POST /enroll**
-```bash
-curl -X POST http://127.0.0.1:5000/enroll \
-  -H "Content-Type: application/json" \
-  -d '{"name": "shristi", "image_path": "photo.jpg"}'
-
-# Response
-{"message": "shristi enrolled successfully"}
-```
-
-**POST /verify**
-```bash
-curl -X POST http://127.0.0.1:5000/verify \
-  -H "Content-Type: application/json" \
-  -d '{"image_path": "photo.jpg"}'
-
-# Access granted
-{"access": "granted", "identity": "shristi", "distance": 54.29}
-
-# Access denied  
-{"access": "denied", "distance": 210.82}
-```
+**3. Match** — The live vector is compared against enrolled templates using 
+Euclidean distance. Under threshold → access granted. Over → denied.
 
 ---
 
@@ -120,17 +49,84 @@ curl -X POST http://127.0.0.1:5000/verify \
 
 | Scenario | Distance | Decision |
 |----------|----------|----------|
-| Same image (baseline) | 0.0 | ✅ Granted |
-| Same person, different photo | ~54 | ✅ Granted |
-| Different person | 150–350 | ❌ Denied |
+| Same image (baseline) | 0.0 | Granted |
+| Same person, different photo | ~54 | Granted |
+| Different person | 150-350 | Denied |
 
-**Threshold:** 120
-**Processing time:** ~15ms per scan (M1 MacBook Air, CPU only)
-**Codebase:** 368 lines of Python across 6 files
+- Threshold: 130
+- Processing time: ~15ms per scan (M1 MacBook Air, CPU only)
+- Codebase: 368 lines of Python across 6 files
+- Unit tests: 10 passing
 
-> Note: FAR/FRR not yet formally measured — current threshold is based on 
-> manual testing with 2 enrolled users. Formal accuracy testing with a larger 
-> dataset is on the roadmap.
+> FAR/FRR not yet formally measured — threshold tuned empirically 
+> with 2 enrolled users. Formal accuracy testing is on the roadmap.
+
+---
+
+## Quickstart
+
+**Prerequisites:** Python 3.12, a webcam
+
+```bash
+# Clone
+git clone https://github.com/skeshri23/iris-recognition
+cd iris-recognition
+
+# Set up environment
+python3 -m venv biokey-env
+source biokey-env/bin/activate  # Mac/Linux
+# biokey-env\Scripts\activate   # Windows
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Download MediaPipe model
+curl -L -o face_landmarker.task \
+  https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task
+
+# Start the web app
+python3 app.py
+
+# Open in browser
+# http://localhost:7860
+```
+
+**Mac:** If camera doesn't open, disconnect iPhone Continuity Camera 
+or set `cv2.CAP_AVFOUNDATION` in `app.py`.
+
+**Windows:** Change `CAP_AVFOUNDATION` to `cv2.CAP_DSHOW` in `app.py`.
+
+---
+
+## API
+
+Five endpoints available. Run `python3 app.py` to start locally.
+
+**GET /health**
+```bash
+curl http://localhost:7860/health
+# {"status": "BioKey API is running"}
+```
+
+**POST /enroll** — register a user via image file
+```bash
+curl -X POST http://localhost:7860/enroll \
+  -H "Content-Type: application/json" \
+  -d '{"name": "shristi", "image_path": "photo.jpg"}'
+# {"message": "shristi enrolled successfully"}
+```
+
+**POST /verify** — verify identity via image file
+```bash
+curl -X POST http://localhost:7860/verify \
+  -H "Content-Type: application/json" \
+  -d '{"image_path": "photo.jpg"}'
+# {"access": "granted", "identity": "shristi", "distance": 54.29}
+```
+
+**POST /enroll_base64** — enroll via browser webcam frame
+
+**POST /verify_base64** — verify via browser webcam frame
 
 ---
 
@@ -140,24 +136,20 @@ curl -X POST http://127.0.0.1:5000/verify \
 python3 -m unittest test_biokey.py -v
 ```
 
-10 unit tests covering:
-- Feature vector shape and type validation
-- Null detection on blank images
-- Deterministic output (same image = same vector)
-- Iris radius and center coordinate bounds
-- Matching logic for known users and strangers
-- Template persistence
-
-All 10 passing ✅
+10 tests covering feature vector validation, null detection on blank 
+images, deterministic output, iris radius and coordinate bounds, 
+matching logic, and template persistence. All passing.
 
 ---
 
-## Real World Application
+## Real World Applications
 
-Cars are the obvious target — a small IR camera mounted in the door handle 
-scans the driver's iris before unlocking. No physical key, no fob, no app. 
-The same pipeline applies anywhere physical access needs to be controlled: 
-offices, lockers, devices.
+The same pipeline applies anywhere physical access needs to be controlled:
+
+- Car door unlock — IR camera in the door handle, no key needed
+- Office access control — replace keycards
+- Device unlock — more secure than face ID
+- Hospital patient verification — no credential to lose or steal
 
 ---
 
@@ -166,22 +158,28 @@ offices, lockers, devices.
 - Python 3.12
 - MediaPipe 0.10.35 (FaceLandmarker Tasks API)
 - OpenCV 4.x
+- Flask
 - NumPy
+- Docker
 
 ---
 
 ## Roadmap
 
-- [ ] Flask API — `/enroll` and `/verify` endpoints
-- [ ] Web demo — try it in the browser
-- [ ] Texture-based feature extraction for stronger matching
-- [ ] Multi-scan enrollment for better accuracy
+- [x] Real-time iris detection pipeline
+- [x] Feature extraction and Euclidean matching
+- [x] Multi-scan enrollment (5-scan average)
+- [x] Flask REST API
+- [x] Browser-based webcam UI
+- [x] Docker deployment on Hugging Face Spaces
+- [x] 10 unit tests
+- [ ] Texture-based feature extraction (Gabor filters)
+- [ ] Formal FAR/FRR testing with larger dataset
 - [ ] Hardware prototype — Raspberry Pi + IR camera
 
 ---
 
 ## Author
 
-Shristi Keshri — CS MEng @ University of Cincinnati  
-[GitHub](https://github.com/skeshri23) | 
-[LinkedIn](https://linkedin.com/in/shristikeshri2110/)
+Shristi Keshri — CS @ Ohio State | MEng CS @ University of Cincinnati
+[GitHub](https://github.com/skeshri23) | [LinkedIn](https://linkedin.com/in/shristikeshri2110)
